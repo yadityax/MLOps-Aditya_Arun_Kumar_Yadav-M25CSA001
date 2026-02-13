@@ -1,0 +1,118 @@
+#
+# DATA CONTRACT: CityMove Ride-Share Data
+#
+# NEGOTIATION SUMMARY
+# Producer: CityMove Data Engineering Team
+# Consumer: Machine Learning Team (Dynamic Pricing)
+#
+# Agreed Terms:
+# 1. Logical Naming: All DB columns renamed to business-friendly terms (e.g., ts_start -> pickup_timestamp).
+# 2. Quality: Hard constraints on Fare (>=0) and Rating (1.0-5.0) to prevent model crashes.
+# 3. Privacy: Passenger ID flagged as PII; consumers require clearance.
+# 4. SLA: Data freshness guaranteed within 30 minutes of ride completion for hourly retraining.
+#
+dataContractSpecification: 0.9.3
+id: urn:datacontract:citymove:rides-log
+version: 1.0.0
+
+info:
+  title: "CityMove Ride-Share Log"
+  description: |
+    Operational log of completed rides used for Dynamic Pricing.
+    Contains fare, distance, rating, and passenger details.
+  owner: "Data Engineering Team"
+  contact:
+    name: "Data Steward"
+    email: "data-eng@citymove.com"
+  classification: confidential
+  tags: [rides, pricing, ml, pii]
+
+schema:
+  type: object
+  properties:
+    ride_id:
+      type: string
+      description: "Unique identifier for the ride transaction."
+      pii: false
+      # physical_mapping: r_id
+    pickup_timestamp:
+      type: string
+      format: date-time
+      description: "UTC timestamp when the ride started."
+      pii: false
+      # physical_mapping: ts_start
+    passenger_id:
+      type: integer
+      description: "Unique identifier for the passenger. Contains PII."
+      pii: true
+      # physical_mapping: pax_id
+    driver_rating:
+      type: number
+      minimum: 1.0
+      maximum: 5.0
+      description: "Rating given to driver (1.0 to 5.0)."
+      pii: false
+      # physical_mapping: d_rating
+    fare_amount_usd:
+      type: number
+      minimum: 0.0
+      description: "Final total fare in USD. Must be non-negative."
+      pii: false
+      # physical_mapping: fare_final
+    distance_meters:
+      type: integer
+      description: "Distance traveled in meters."
+      pii: false
+      # physical_mapping: dist_m
+  required:
+    - ride_id
+    - pickup_timestamp
+    - fare_amount_usd
+    - distance_meters
+
+sla:
+  freshness:
+    threshold: "30 minutes"
+    description: "Data available within 30 mins of ride completion for hourly model retraining."
+  availability:
+    percentage: "99.9%"
+    description: "Uptime commitment."
+  retention:
+    period: "1 year"
+    description: "Historical ride data retained for pricing model analysis and auditing"
+
+quality:
+  - name: fare_non_negative
+    type: validity
+    expression: "fare_amount_usd >= 0"
+    threshold: "100%"
+    enforcement: hard
+    description: "Fare must never be negative."
+  - name: rating_range
+    type: validity
+    expression: "driver_rating >= 1.0 AND driver_rating <= 5.0"
+    threshold: "100%"
+    enforcement: soft
+    description: "Driver rating must be between 1.0 and 5.0."
+  - name: distance_not_null
+    type: completeness
+    column: distance_meters
+    threshold: "100%"
+    enforcement: hard
+    description: "Distance is critical for pricing and must not be null."
+
+lineage:
+  sources:
+    - name: operational_rides_db
+      type: postgresql
+      description: "CityMove operational database containing ride transaction history"
+  consumers:
+    - name: dynamic-pricing-model
+      team: ml-platform
+      usage: "Hourly retraining of surge pricing and demand prediction models"
+    - name: ride-performance-analytics
+      team: operations
+      usage: "Daily operational KPI dashboards and driver performance analysis"
+    - name: revenue-forecasting
+      team: finance
+      usage: "Weekly and monthly revenue projections"

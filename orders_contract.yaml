@@ -1,0 +1,121 @@
+#
+# DATA CONTRACT: Flash Sale Orders Stream
+#
+# NEGOTIATION SUMMARY
+# Producer: Checkout/Order Processing Team
+# Consumer: Marketing Dashboard & Finance Analytics
+#
+# Agreed Terms:
+# 1. Order totals must never be negative (regulatory/business requirement)
+# 2. Status codes mapped to logical enum values
+# 3. Hard enforcement on both rules to prevent downstream breakage
+#
+dataContractSpecification: 0.9.3
+id: urn:datacontract:ecommerce:flash-sale-orders
+version: 1.0.0
+
+info:
+  title: "Flash Sale Real-Time Orders"
+  description: "Real-time stream of order totals and status for Marketing Dashboards and Finance Analytics. Supports real-time dashboard updates and financial reporting."
+  owner: "Checkout Team"
+  contact:
+    name: "Order Data Owner"
+    email: "checkout-support@ecommerce.com"
+    slack: "#orders-team"
+  classification: internal
+  tags: [ecommerce, orders, revenue, pii, flash-sale]
+
+schema:
+  type: object
+  properties:
+    order_id:
+      type: string
+      format: uuid
+      description: "Unique identifier for the order."
+      pii: false
+      # physical_mapping: ord_id
+    order_total_usd:
+      type: number
+      minimum: 0.0
+      description: "Total order value in USD. Must be non-negative."
+      pii: false
+      # physical_mapping: o_total
+    status:
+      type: string
+      enum: [PAID, SHIPPED, CANCELLED]
+      description: |
+        Logical status derived from physical codes:
+        2 -> PAID
+        5 -> SHIPPED
+        9 -> CANCELLED
+      pii: false
+      # physical_mapping: status_code
+    customer_id:
+      type: string
+      description: "Unique customer identifier."
+      pii: true
+      # physical_mapping: cust_id
+    order_timestamp:
+      type: string
+      format: date-time
+      description: "Timestamp when order was placed (UTC)."
+      pii: false
+      # physical_mapping: order_ts
+  required:
+    - order_id
+    - order_total_usd
+    - status
+    - order_timestamp
+
+sla:
+  freshness:
+    threshold: "2 minutes"
+    description: "Data available within 2 minutes of order completion for real-time dashboard updates"
+  availability:
+    percentage: "99.9%"
+    description: "High availability for customer-facing dashboards"
+  retention:
+    period: "2 years"
+    description: "Retained for analytics and chargeback investigations"
+
+quality:
+  - name: total_non_negative
+    type: validity
+    expression: "order_total_usd >= 0"
+    threshold: "100%"
+    enforcement: hard
+    description: "Order total cannot be negative. Hard circuit breaker prevents negative values from reaching downstream systems."
+  - name: status_valid_enum
+    type: validity
+    expression: "status IN ('PAID', 'SHIPPED', 'CANCELLED')"
+    threshold: "100%"
+    enforcement: hard
+    description: "Reject unmapped status codes (e.g., code 7). Only 2, 5, 9 are valid."
+  - name: order_id_unique
+    type: uniqueness
+    column: order_id
+    threshold: "100%"
+    enforcement: hard
+    description: "Each order must have a unique identifier"
+  - name: order_timestamp_reasonable
+    type: validity
+    expression: "order_timestamp <= CURRENT_TIMESTAMP"
+    threshold: "99.99%"
+    enforcement: soft
+    description: "Order timestamp should not be in the future"
+
+lineage:
+  sources:
+    - name: orders_transaction_db
+      type: postgresql
+      description: "E-commerce order processing database"
+  consumers:
+    - name: flash-sale-dashboard
+      team: marketing
+      usage: "Real-time marketing dashboard during flash sales"
+    - name: revenue-analytics
+      team: finance
+      usage: "Daily and weekly revenue reporting"
+    - name: fraud-detection
+      team: risk
+      usage: "Detecting unusual purchase patterns"

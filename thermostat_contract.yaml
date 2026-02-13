@@ -1,0 +1,125 @@
+#
+# DATA CONTRACT: Smart Thermostat Fleet
+#
+# NEGOTIATION SUMMARY
+# Producer: IoT Device Engineering Team
+# Consumer: Fleet Analytics & Predictive Maintenance
+#
+# Agreed Terms:
+# 1. Temperature readings outside -30 to 60°C rejected (soft enforcement - warn and skip record)
+# 2. Battery levels outside 0.0-1.0 rejected (soft enforcement)
+# 3. Sensor malfunction values (e.g., 9999°C) detected and filtered
+# 4. Data available within 5 minutes of sensor reading (freshness SLA)
+#
+dataContractSpecification: 0.9.3
+id: urn:datacontract:iot:thermostat-readings
+version: 1.0.0
+
+info:
+  title: "Smart Thermostat Telemetry"
+  description: "Minute-level temperature and battery health from device fleet. Used for analytics, predictive maintenance, and anomaly detection."
+  owner: "IoT Device Team"
+  contact:
+    name: "IoT Data Steward"
+    email: "iot-support@company.com"
+    slack: "#iot-devices"
+  classification: internal
+  tags: [iot, thermostat, sensors, telemetry, temperature, maintenance]
+
+schema:
+  type: object
+  properties:
+    device_id:
+      type: string
+      description: "Unique device identifier (serial number or MAC address)."
+      pii: false
+      # physical_mapping: dev_id
+    timestamp:
+      type: string
+      format: date-time
+      description: "UTC timestamp when the sensor reading was recorded."
+      pii: false
+      # physical_mapping: ts_utc
+    temperature_celsius:
+      type: number
+      minimum: -30
+      maximum: 60
+      description: "Ambient temperature in Celsius. Valid range: -30 to +60°C (inclusive). Values outside this range indicate sensor malfunction."
+      pii: false
+      # physical_mapping: temp_c
+    battery_level:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Battery charge percentage, expressed as decimal from 0.0 to 1.0. (0.0 = dead, 1.0 = full charge)"
+      pii: false
+      # physical_mapping: batt_lvl
+    device_location:
+      type: string
+      description: "Physical location where the thermostat is installed (e.g., 'Living Room', 'Bedroom')."
+      pii: false
+      # physical_mapping: loc_name
+  required:
+    - device_id
+    - timestamp
+    - temperature_celsius
+    - battery_level
+
+sla:
+  freshness:
+    threshold: "5 minutes"
+    description: "Data available within 5 minutes of sensor reading to central platform"
+  availability:
+    percentage: "99.5%"
+    description: "Fleet uptime target (some devices offline expected)"
+  retention:
+    period: "2 years"
+    description: "Historical data retained for trend analysis and warranty claims"
+
+quality:
+  - name: temp_range_check
+    type: validity
+    expression: "temperature_celsius >= -30 AND temperature_celsius <= 60"
+    threshold: "100%"
+    enforcement: soft
+    description: "Reject sensor malfunction values (e.g., 9999°C). Soft enforcement: log violation and skip record, do not block pipeline."
+  - name: battery_range_check
+    type: validity
+    expression: "battery_level >= 0.0 AND battery_level <= 1.0"
+    threshold: "100%"
+    enforcement: soft
+    description: "Battery level must be a valid percentage (0.0 to 1.0 inclusive). Soft enforcement allows corrections downstream."
+  - name: device_id_not_empty
+    type: completeness
+    column: device_id
+    threshold: "100%"
+    enforcement: hard
+    description: "Device ID must always be present"
+  - name: timestamp_not_future
+    type: validity
+    expression: "timestamp <= CURRENT_TIMESTAMP"
+    threshold: "99.9%"
+    enforcement: soft
+    description: "Sensor timestamp should not be in the future"
+  - name: temperature_not_suspicious_high
+    type: validity
+    expression: "temperature_celsius != 9999"
+    threshold: "100%"
+    enforcement: soft
+    description: "Specifically check for common sensor failure value (9999°C)"
+
+lineage:
+  sources:
+    - name: thermostat_sensor_network
+      type: iot_devices
+      description: "Fleet of 10,000+ distributed smart thermostats"
+  consumers:
+    - name: fleet-analytics-dashboard
+      team: operations
+      usage: "Real-time monitoring of temperature and device health"
+    - name: predictive-maintenance-model
+      team: ml-platform
+      usage: "Identifying devices likely to fail based on battery and sensor patterns"
+    - name: comfort-recommendations
+      team: product
+      usage: "Home comfort scoring and optimization suggestions"
