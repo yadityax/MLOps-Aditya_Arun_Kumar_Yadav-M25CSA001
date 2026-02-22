@@ -1,0 +1,29 @@
+Docker Image Build Instructions
+
+This project uses two distinct Docker environments to separate the interactive training process from the automated production evaluation.
+
+1. Building the Training Environment
+The default 'Dockerfile' creates an interactive environment containing all the necessary dependencies to fine-tune the model, evaluate it locally, and push the weights to the Hugging Face Hub.
+
+To build this image, open your terminal in the root project directory and run:
+
+
+docker build -t hf-training-env .
+
+
+
+(This command tags the image as `hf-training-env` and uses the standard `Dockerfile` located in the current directory `.`)
+
+2. Building the Production Evaluation Environment
+The 'Dockerfile.eval' configuration creates a lightweight, automated environment. Instead of keeping a terminal open, it is programmed to execute 'eval_hub.py' immediately upon starting, download the hosted model from Hugging Face, and print the classification report.
+
+To build this specific production image, run:
+
+
+docker build -f Dockerfile.eval -t hf-eval-env .
+
+
+(The '-f' flag tells Docker to ignore the default file and specifically use 'Dockerfile.eval', tagging the new image as `hf-eval-env`)
+
+
+

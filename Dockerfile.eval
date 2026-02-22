@@ -1,0 +1,18 @@
+# Use the same PyTorch base image
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the Python scripts into the container
+COPY . .
+
+# Override the default command to automatically run the evaluation script
+CMD ["python", "eval_hub.py"]
