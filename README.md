@@ -20,7 +20,7 @@ This assignment optimizes a from-scratch PyTorch Transformer model for English�
 ```
 
 > **Model Weights** are hosted on HuggingFace due to GitHub storage limits:
-> 🔗 [M25CSA001/transformer-en-hi]([https://huggingface.co/M25CSA001/transformer-en-hi](https://huggingface.co/m25csa001/transformer-en-hi/tree/main))
+> 🔗 [M25CSA001/transformer-en-hi](https://huggingface.co/m25csa001/transformer-en-hi/tree/main)
 
 ---
 
