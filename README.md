@@ -155,8 +155,8 @@ Experiment No. (based on combinations in step 2): `8`, Rank: `8`, Alpha: `4`
 
 ## External Links
 
-- WandB project/run links: `[https://wandb.ai/m25csa001-indian-institute-of-technology-jodhpur/assignment5?nw=nwuserm25csa001]`
-- HuggingFace model link (best Q1): `[https://huggingface.co/m25csa001/assignment5-weights]`
+- WandB project/run links: [https://wandb.ai/m25csa001-indian-institute-of-technology-jodhpur/assignment5?nw=nwuserm25csa001](https://wandb.ai/m25csa001-indian-institute-of-technology-jodhpur/assignment5?nw=nwuserm25csa001)
+- HuggingFace model link (best Q1): [https://huggingface.co/m25csa001/assignment5-weights/tree/main](https://huggingface.co/m25csa001/assignment5-weights/tree/main)
 
 
 
