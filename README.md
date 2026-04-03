@@ -133,36 +133,25 @@ Experiment No. (based on combinations in step 2): `8`, Rank: `8`, Alpha: `4`
 
 ### Q1 Tables (CSV)
 
-- [outputs/q1_train_val_table_required_all_experiments.csv](outputs/q1_train_val_table_required_all_experiments.csv)
-- [outputs/q1_testing_table_required.csv](outputs/q1_testing_table_required.csv)
-- [outputs/q1_lora_sweep_summary.csv](outputs/q1_lora_sweep_summary.csv)
+- [results/Q1/q1_train_val_table_required_all_experiments.csv](results/Q1/q1_train_val_table_required_all_experiments.csv)
+- [results/Q1/q1_testing_table_required.csv](results/Q1/q1_testing_table_required.csv)
+- [results/Q1/q1_lora_sweep_summary.csv](results/Q1/q1_lora_sweep_summary.csv)
 
 ### Q1 Graphs
 
-![Q1 Training Curves](outputs/q1_lora_r8_a4_d0.1/training_curves.png)
-![Q1 Classwise Accuracy](outputs/q1_lora_r8_a4_d0.1/classwise_test_accuracy.png)
-![Q1 LoRA Gradient Norms](outputs/q1_lora_r8_a4_d0.1/lora_gradient_norms.png)
+![Q1 Training Curves](results/Q1/training_curves.png)
+![Q1 Classwise Accuracy](results/Q1/classwise_test_accuracy.png)
+![Q1 LoRA Gradient Norms](results/Q1/lora_gradient_norms.png)
 
 ### Q2 Tables and Graphs
 
-- [outputs/q2_fgsm/attack_results.csv](outputs/q2_fgsm/attack_results.csv)
-- [outputs/q2_detector_pgd/pgd_detector_history.csv](outputs/q2_detector_pgd/pgd_detector_history.csv)
-- [outputs/q2_detector_bim/bim_detector_history.csv](outputs/q2_detector_bim/bim_detector_history.csv)
+- [results/Q2/q2_fgsm/attack_results.csv](results/Q2/attack_results.csv)
+- [results/Q2/q2_detector_pgd/pgd_detector_history.csv](results/Q2/pgd_detector_history.csv)
+- [results/Q2/q2_detector_bim/bim_detector_history.csv](results/Q2/bim_detector_history.csv)
 
-![Q2 FGSM Comparison](outputs/q2_fgsm/fgsm_comparison.png)
-![Q2 Adversarial Samples](outputs/q2_fgsm/adversarial_samples.png)
+![Q2 FGSM Comparison](results/Q2/fgsm_comparison.png)
+![Q2 Adversarial Samples](results/Q2/adversarial_samples.png)
 
-## Model Weights
-
-### Q1 best model
-
-- [outputs/q1_lora_r8_a4_d0.1/best_model.pth](outputs/q1_lora_r8_a4_d0.1/best_model.pth)
-
-### Q2 all models
-
-- [outputs/q2_fgsm/best_clean_model.pth](outputs/q2_fgsm/best_clean_model.pth)
-- [outputs/q2_detector_pgd/best_pgd_detector.pth](outputs/q2_detector_pgd/best_pgd_detector.pth)
-- [outputs/q2_detector_bim/best_bim_detector.pth](outputs/q2_detector_bim/best_bim_detector.pth)
 
 ## External Links
 
