@@ -1,0 +1,11 @@
+LoRA layers (with/without),Rank,Alpha,Dropout,Overall Test Accuracy,Trainable Parameters used
+Without LoRA,-,-,-,0.8099,38500
+"With LoRA (Q,K,V)",2,2,0.1,0.8958,93796
+"With LoRA (Q,K,V)",2,4,0.1,0.8939,93796
+"With LoRA (Q,K,V)",2,8,0.1,0.8911,93796
+"With LoRA (Q,K,V)",4,2,0.1,0.8952,149092
+"With LoRA (Q,K,V)",4,4,0.1,0.8972,149092
+"With LoRA (Q,K,V)",4,8,0.1,0.8973,149092
+"With LoRA (Q,K,V)",8,2,0.1,0.8983,259684
+"With LoRA (Q,K,V)",8,4,0.1,0.8984,259684
+"With LoRA (Q,K,V)",8,8,0.1,0.8968,259684

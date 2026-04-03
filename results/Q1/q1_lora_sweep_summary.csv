@@ -1,0 +1,10 @@
+experiment,LoRA layers (with/without),rank,alpha,dropout,overall_test_accuracy,trainable_parameters_used,best_checkpoint
+q1_lora_r2_a2_d0.1,"With LoRA (Q,K,V)",2,2,0.1,0.8958,93796,outputs/q1_lora_r2_a2_d0.1/best_model.pth
+q1_lora_r2_a4_d0.1,"With LoRA (Q,K,V)",2,4,0.1,0.8939,93796,outputs/q1_lora_r2_a4_d0.1/best_model.pth
+q1_lora_r2_a8_d0.1,"With LoRA (Q,K,V)",2,8,0.1,0.8911,93796,outputs/q1_lora_r2_a8_d0.1/best_model.pth
+q1_lora_r4_a2_d0.1,"With LoRA (Q,K,V)",4,2,0.1,0.8952,149092,outputs/q1_lora_r4_a2_d0.1/best_model.pth
+q1_lora_r4_a4_d0.1,"With LoRA (Q,K,V)",4,4,0.1,0.8972,149092,outputs/q1_lora_r4_a4_d0.1/best_model.pth
+q1_lora_r4_a8_d0.1,"With LoRA (Q,K,V)",4,8,0.1,0.8973,149092,outputs/q1_lora_r4_a8_d0.1/best_model.pth
+q1_lora_r8_a2_d0.1,"With LoRA (Q,K,V)",8,2,0.1,0.8983,259684,outputs/q1_lora_r8_a2_d0.1/best_model.pth
+q1_lora_r8_a4_d0.1,"With LoRA (Q,K,V)",8,4,0.1,0.8984,259684,outputs/q1_lora_r8_a4_d0.1/best_model.pth
+q1_lora_r8_a8_d0.1,"With LoRA (Q,K,V)",8,8,0.1,0.8968,259684,outputs/q1_lora_r8_a8_d0.1/best_model.pth

@@ -1,0 +1,4 @@
+method,accuracy
+clean,0.8405
+fgsm_scratch,0.2392578125
+fgsm_art,0.23828125
