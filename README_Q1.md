@@ -38,4 +38,4 @@ docker run --rm -v $(pwd):/app q1-translate
 **First translated line:**
 ____________________________________________________________________
 
-**BLEU Score:** ____
+**BLEU Score:** 38.35
