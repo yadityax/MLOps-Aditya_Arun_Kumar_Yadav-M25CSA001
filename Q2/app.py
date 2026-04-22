@@ -79,13 +79,29 @@ def mask_file_to_classes(mask_np: np.ndarray) -> np.ndarray:
     return np.clip(np.max(m, axis=-1), 0, NUM_CLASSES - 1)
 
 
-def process_pair(img_np, mask_np):
+def auto_mask_path(img_filepath: str) -> str | None:
+    """Given an uploaded image filepath, return the corresponding CameraMask path if it exists."""
+    if img_filepath is None:
+        return None
+    fname = os.path.basename(img_filepath)
+    # Try relative to cwd first, then absolute
+    for base in [os.getcwd(), os.path.dirname(img_filepath)]:
+        candidate = os.path.join(base, "data", "CameraMask", fname)
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
+def process_pair(img_filepath):
     """
-    Given an uploaded image (and optional mask), return
+    Given an uploaded image filepath, return
     (original PIL, ground-truth PIL or None, prediction PIL).
     """
-    if img_np is None:
+    if img_filepath is None:
         return None, None, None
+
+    img_np = cv2.imread(img_filepath)
+    img_np = cv2.cvtColor(img_np, cv2.COLOR_BGR2RGB)
 
     orig_pil = Image.fromarray(
         cv2.resize(img_np, (IMG_W * 3, IMG_H * 3), interpolation=cv2.INTER_NEAREST)
@@ -94,17 +110,20 @@ def process_pair(img_np, mask_np):
     pred_pil = colorize_mask(pred_idx)
 
     gt_pil = None
-    if mask_np is not None:
+    mask_path = auto_mask_path(img_filepath)
+    if mask_path:
+        mask_np = cv2.imread(mask_path)
+        mask_np = cv2.cvtColor(mask_np, cv2.COLOR_BGR2RGB)
         gt_cls = mask_file_to_classes(mask_np)
         gt_pil = colorize_mask(gt_cls)
 
     return orig_pil, gt_pil, pred_pil
 
 
-def infer_all(img1, mask1, img2, mask2, img3, mask3, img4, mask4):
+def infer_all(img1, img2, img3, img4):
     out = []
-    for img, msk in [(img1, mask1), (img2, mask2), (img3, mask3), (img4, mask4)]:
-        o, g, p = process_pair(img, msk)
+    for img in [img1, img2, img3, img4]:
+        o, g, p = process_pair(img)
         out.extend([o, g, p])
     return out
 
@@ -146,24 +165,20 @@ with gr.Blocks(title="CityScape Segmentation — Q2") as demo:
         # ── Page 2: Segmentation Inference ───────────────────────────────────
         with gr.Tab("Page 2 · Segmentation Inference"):
             gr.Markdown(
-                "Upload **4 images** from the test set and (optionally) their "
-                "**ground-truth masks**.  \n"
-                "The app shows: **Original · Ground Truth · Prediction** for each sample."
+                "Upload **4 images** from the test set (`data/CameraRGB/`).  \n"
+                "The app shows: **Original · Ground Truth · Prediction** for each sample.  \n"
+                "Ground-truth masks are loaded automatically from `data/CameraMask/`."
             )
 
+            gr.Markdown(
+                "> Ground-truth masks are loaded automatically from `data/CameraMask/` "
+                "when you upload images from the test set."
+            )
             with gr.Row():
-                with gr.Column():
-                    gr.Markdown("### Input Images")
-                    img1  = gr.Image(label="Image 1",  type="numpy", height=150)
-                    img2  = gr.Image(label="Image 2",  type="numpy", height=150)
-                    img3  = gr.Image(label="Image 3",  type="numpy", height=150)
-                    img4  = gr.Image(label="Image 4",  type="numpy", height=150)
-                with gr.Column():
-                    gr.Markdown("### Ground-Truth Masks *(optional)*")
-                    mask1 = gr.Image(label="Mask 1",   type="numpy", height=150)
-                    mask2 = gr.Image(label="Mask 2",   type="numpy", height=150)
-                    mask3 = gr.Image(label="Mask 3",   type="numpy", height=150)
-                    mask4 = gr.Image(label="Mask 4",   type="numpy", height=150)
+                img1 = gr.Image(label="Image 1", type="filepath", height=150)
+                img2 = gr.Image(label="Image 2", type="filepath", height=150)
+                img3 = gr.Image(label="Image 3", type="filepath", height=150)
+                img4 = gr.Image(label="Image 4", type="filepath", height=150)
 
             run_btn = gr.Button("Run Segmentation", variant="primary", size="lg")
 
@@ -192,11 +207,11 @@ with gr.Blocks(title="CityScape Segmentation — Q2") as demo:
 
             run_btn.click(
                 fn=infer_all,
-                inputs=[img1, mask1, img2, mask2, img3, mask3, img4, mask4],
+                inputs=[img1, img2, img3, img4],
                 outputs=all_outputs,
             )
 
 if __name__ == "__main__":
     demo.launch(server_name="0.0.0.0", server_port=7860, share=False,
                 theme=gr.themes.Soft(),
-                allowed_paths=[Q2_DIR])
+                allowed_paths=[Q2_DIR, "data"])
