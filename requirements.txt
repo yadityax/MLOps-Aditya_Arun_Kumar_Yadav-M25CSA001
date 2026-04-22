@@ -1,0 +1,9 @@
+torch>=2.0.0
+torchvision
+opencv-python-headless
+numpy
+matplotlib
+scikit-learn
+pillow
+gradio>=4.0.0
+gdown

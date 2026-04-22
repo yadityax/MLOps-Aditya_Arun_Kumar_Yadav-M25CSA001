@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    image: m25csa001/cityscape-seg:latest
+    container_name: cityscape-seg
+    ports:
+      - "7860:7860"
+    # Uncomment below to enable GPU inside the container
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
